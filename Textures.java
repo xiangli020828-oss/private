@@ -23,5 +23,10 @@ public class Textures {
     public static final TextureRegion FENCE_LowerLeft_Corner = SpriteSheet.BASIC_TILES.at(6,1);
     public static final TextureRegion FENCE_LowerRight_Corner = SpriteSheet.BASIC_TILES.at(6,3);
 
+    //增加基础地板Grass
+    public static final TextureRegion Grass = SpriteSheet.BASIC_TILES.at(2, 4);
+
+
+
     
 }
