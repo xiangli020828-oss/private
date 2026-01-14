@@ -289,16 +289,15 @@ public class GameMap {
 
 
   
-   public void updateCamera() {
+ public void updateCamera() {
         if (player == null) return;
         
-        // 摄像机逻辑保持不变...
-        float mapPixelWidth = width * 16 * 4; // TILE_SIZE * SCALE
-        float mapPixelHeight = height * 16 * 4;
+        // 确保乘了 16 (Tile Size)
+        float targetX = player.getX() * 16 + 8;
+        float targetY = player.getY() * 16 + 8;
         
-        // 简单的跟随逻辑，先让它跑起来
-        camera.position.x = player.getX() * 16 * 4; 
-        camera.position.y = player.getY() * 16 * 4;
+        camera.position.x = targetX;
+        camera.position.y = targetY;
         camera.update();
     }
 
