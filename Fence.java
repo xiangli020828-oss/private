@@ -9,14 +9,15 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import de.tum.cit.aet.valleyday.texture.Textures;
+import de.tum.cit.aet.valleyday.texture.Drawable;
 
 /**
  * Represents an indestructible fence in the game.
  * 栅栏类：不可破坏的障碍物，包含物理碰撞体和渲染逻辑。
  */
-public class Fence {
+public class Fence implements Drawable{
     // 栅栏的坐标 (Tile Coordinates)
-    private float x, y;
+    private final float x, y;
     
     // Box2D 刚体，用于碰撞检测
     private Body body;
@@ -61,11 +62,21 @@ public class Fence {
         this.textureRegion = textureRegion;
     }
 
-    //绘制
-    public void draw(SpriteBatch batch) {
-        
-        batch.draw(textureRegion, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    @Override
+    public TextureRegion getCurrentAppearance() {
+        return textureRegion;
     }
+
+    @Override
+    public float getX() {
+        return x;
+    }
+
+    @Override
+    public float getY() {
+        return y;
+    }
+
 
 
 
