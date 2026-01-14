@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import de.tum.cit.aet.valleyday.ValleyDayGame;
 import de.tum.cit.aet.valleyday.map.GameMap;
 import de.tum.cit.aet.valleyday.texture.Drawable;
+import de.tum.cit.aet.valleyday.texture.Textures;
 
 import java.util.List; // ✅ 引入 List
 
@@ -67,6 +68,19 @@ public class GameScreen implements Screen {
         
         // Render everything in the map here, in order from lowest to highest (later things appear on top)
         // You may want to add a method to GameMap to return all the drawables in the correct order
+
+        // ✅ 第一步：先画地板！(不然背景是黑的)
+        // 假设 Textures.FENCE_UP 或者你有一个 Textures.GRASS
+        // 如果没有草地图片，暂时用 Textures.FENCE_UP 代替测试，确保能看到东西
+        TextureRegion grassTexture = Textures.Grass; 
+        
+        // 获取地图宽高 (确保 GameMap 里有 getWidth/getHeight)
+        for (int y = 0; y < map.getHeight(); y++) {
+            for (int x = 0; x < map.getWidth(); x++) {
+                // 画在 x*16, y*16 的位置
+                spriteBatch.draw(grassTexture, x * 16, y * 16, 16, 16);
+            }
+        }
         
         // ✅ 1. 画栅栏 (Fences)
         // 使用下面的辅助方法直接画整个列表
