@@ -9,24 +9,18 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
  */
 public class Textures {
     
-    public static final TextureRegion FLOWERS = SpriteSheet.BASIC_TILES.at(2, 5);
+   
+    // 不要在类加载时立即访问 SpriteSheet
+    public static TextureRegion FLOWERS() {
+        return SpriteSheet.BASIC_TILES.at(2, 5); // ⚡ 调用时才取
+    }
+
+   
 
     public static final TextureRegion CHEST = SpriteSheet.BASIC_TILES.at(5, 5);
-
-    //增加不同状态的Fence
-    public static final TextureRegion FENCE_Up = SpriteSheet.BASIC_TILES.at(4,2);
-    public static final TextureRegion FENCE_UpperLeft_Corner = SpriteSheet.BASIC_TILES.at(4,1);
-    public static final TextureRegion FENCE_UpperRight_Corner = SpriteSheet.BASIC_TILES.at(4,3);
-    public static final TextureRegion FENCE_Left = SpriteSheet.BASIC_TILES.at(5,1);
-    public static final TextureRegion FENCE_Right = SpriteSheet.BASIC_TILES.at(5,3);
-    public static final TextureRegion FENCE_Low = SpriteSheet.BASIC_TILES.at(6,2);
-    public static final TextureRegion FENCE_LowerLeft_Corner = SpriteSheet.BASIC_TILES.at(6,1);
-    public static final TextureRegion FENCE_LowerRight_Corner = SpriteSheet.BASIC_TILES.at(6,3);
-
-    //增加基础地板Grass
-    public static final TextureRegion Grass = SpriteSheet.BASIC_TILES.at(2, 4);
+     public static final TextureRegion FLOOR = SpriteSheet.BASIC_TILES.at(2, 2);
+     public static final TextureRegion FENCE = SpriteSheet.BASIC_TILES.at(1, 1);
+      public static final TextureRegion DEBRIS = SpriteSheet.BASIC_TILES.at(3, 1);
 
 
-
-    
 }
