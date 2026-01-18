@@ -1,85 +1,69 @@
 package de.tum.cit.aet.valleyday.map;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import de.tum.cit.aet.valleyday.texture.Textures;
+import com.badlogic.gdx.physics.box2d.*;
 import de.tum.cit.aet.valleyday.texture.Drawable;
+import de.tum.cit.aet.valleyday.texture.Textures;
 
 /**
- * Represents an indestructible fence in the game.
- * 栅栏类：不可破坏的障碍物，包含物理碰撞体和渲染逻辑。
+ * An indestructible fence tile.
+ * Fences block movement and cannot be removed by the player.
  */
-public class Fence implements Drawable{
-    // 栅栏的坐标 (Tile Coordinates)
-    private final float x, y;
-    
-    // Box2D 刚体，用于碰撞检测
-    private Body body;
-    
-    // 栅栏的纹理图片
-    private TextureRegion textureRegion;
+public class Fence extends GameObject implements Drawable { // ✅ 必须实现 Drawable
 
-    // 常量：每个格子的大小，16像素
-    private static final float TILE_SIZE = 16;
-    
+    private final Body body;
 
     /**
-     * @param world Box2D physics world
-     * @param x x-coordinate in map tiles (not pixels)
-     * @param y y-coordinate in map tiles
+     * Creates an indestructible fence at the given tile position.
+     *
+     * @param world the Box2D world
+     * @param x     x-coordinate on the map grid
+     * @param y     y-coordinate on the map grid
      */
-    public Fence(World world, float x, float y, TextureRegion textureRegion) {
-        this.x = x;
-        this.y = y;
+    public Fence(World world, int x, int y) {
+        super(x, y); // 中文：逻辑坐标仍保留，但渲染用 body
 
-        // 1. 初始化物理刚体 (Box2D Body)
+        // Define a static body (does not move)
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.StaticBody; // 静态物体，不会被推走
-        
-        // 设置位置：注意 Box2D 的原点通常在物体中心，而地图坐标通常在左下角
-        // 这里做一个简单的转换，假设坐标对齐
-        bodyDef.position.set(x + 0.5f, y + 0.5f); 
-        
-        this.body = world.createBody(bodyDef);
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(x + 0.5f, y + 0.5f); // 中文：Box2D 中心点
 
-        // 定义碰撞框形状 (正方形)
+        body = world.createBody(bodyDef);
+
+        // Create a box shape (1x1 tile)
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(0.5f, 0.5f); // 宽高的一半，即 1x1 的格子
+        shape.setAsBox(0.5f, 0.5f);
 
-        // 将形状赋给刚体
-        this.body.createFixture(shape, 0.0f); // 密度为0
-        
-        // 用完记得销毁 shape 以释放内存
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 0f;
+        fixtureDef.friction = 0.5f;
+
+        body.createFixture(fixtureDef);
+        body.setUserData(this); // 中文：推荐，方便碰撞识别
+
         shape.dispose();
-
-        // 2. 加载图片资源 
-        this.textureRegion = textureRegion;
     }
 
+    /** 中文：Fence 是静态贴图 */
     @Override
     public TextureRegion getCurrentAppearance() {
-        return textureRegion;
+        return Textures.FENCE;
     }
 
+    /** 中文：渲染位置必须来自 Box2D body */
     @Override
     public float getX() {
-        return x;
+        return body.getPosition().x - 0.5f;
     }
 
     @Override
     public float getY() {
-        return y;
+        return body.getPosition().y - 0.5f;
     }
 
-
-
-
-    
-    
+    public Body getBody() {
+        return body;
+    }
 }
+
