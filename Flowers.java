@@ -19,12 +19,12 @@ public class Flowers implements Drawable {
         this.x = x;
         this.y = y;
     }
-
-
+    
     @Override
-    public TextureRegion getCurrentAppearance() {
-        return Textures.FLOWERS;
-    }
+public TextureRegion getCurrentAppearance() {
+    return Textures.FLOWERS(); // ⚡ 调用时才访问 SpriteSheet
+}
+
     
     @Override
     public float getX() {
@@ -34,5 +34,9 @@ public class Flowers implements Drawable {
     @Override
     public float getY() {
         return y;
+    }
+    /** 最小改动：增加 render 方法，直接绘制 */
+    public void render(SpriteBatch batch) {
+        batch.draw(getCurrentAppearance(), x * 16, y * 16, 16, 16);
     }
 }
