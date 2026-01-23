@@ -1,0 +1,203 @@
+package de.tum.cit.aet.valleyday.state;
+
+/**
+ * Stores the global, mutable state of the game.
+ * <p>
+ * GameState represents the current progress of the game,
+ * including time, harvest progress, collected tools,
+ * and win/lose conditions.
+ * </p>
+ *
+ * This class contains no rendering or libGDX-specific code
+ * and is purely a data and logic container.
+ */
+public class GameState {
+
+    /* =========================
+     * Time & Game Flow
+     * ========================= */
+
+    /** Remaining daylight time in seconds. */
+    private float remainingTime;
+
+    /** Whether the game is currently paused. */
+    private boolean paused;
+
+    /* =========================
+     * Harvest Progress
+     * ========================= */
+
+    /** Number of crops harvested so far. */
+    private int harvestedCrops;
+
+    /** Number of crops required to unlock the exit. */
+    private final int harvestQuota;
+
+    /** Whether the exit is unlocked. */
+    private boolean exitUnlocked;
+
+    /* =========================
+     * Tools
+     * ========================= */
+
+    /** Whether the player has collected the shovel. */
+    private static boolean hasShovel;
+
+    /** Whether the player has collected the watering can. */
+    private boolean hasWateringCan;
+
+    /** Whether the player has collected fertilizer. */
+    private boolean hasFertilizer;
+
+    /* =========================
+     * Game End States
+     * ========================= */
+
+    /** Whether the player has won the game. */
+    private boolean victory;
+
+    /** Whether the player has lost the game. */
+    private boolean gameOver;
+
+    /* =========================
+     * Construction
+     * ========================= */
+
+    /**
+     * Creates a new GameState instance.
+     *
+     * @param initialTime   initial daylight time in seconds
+     * @param harvestQuota  number of crops required to win
+     */
+    public GameState(float initialTime, int harvestQuota) {
+        this.remainingTime = initialTime;
+        this.harvestQuota = harvestQuota;
+        this.harvestedCrops = 0;
+        this.exitUnlocked = false;
+        this.paused = false;
+        this.hasShovel = false;
+        this.hasWateringCan = false;
+        this.hasFertilizer = false;
+        this.victory = false;
+        this.gameOver = false;
+    }
+
+    /* =========================
+     * Time Handling
+     * ========================= */
+
+    /**
+     * Updates the remaining time.
+     *
+     * @param delta time passed since last frame (seconds)
+     */
+    public void updateTime(float delta) {
+        if (paused || gameOver || victory) return;
+
+        remainingTime -= delta;
+
+        if (remainingTime <= 0f) {
+            remainingTime = 0f;
+            triggerGameOver();
+        }
+    }
+
+    public float getRemainingTime() {
+        return remainingTime;
+    }
+
+    /**
+     * Returns remaining time formatted as mm:ss for HUD display.
+     * ✅ 中文：方便 HUD 显示
+     */
+    public String getFormattedTime() {
+        int totalSeconds = Math.max(0, (int) remainingTime);
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return String.format("%02d:%02d", minutes, seconds);
+    }
+
+    /* =========================
+     * Harvest Handling
+     * ========================= */
+
+    /**
+     * Increases the harvest counter by one and checks
+     * whether the exit should be unlocked.
+     */
+    public void increaseHarvestCount() {
+        if (gameOver || victory) return;
+
+        harvestedCrops++;
+
+        if (!exitUnlocked && harvestedCrops >= harvestQuota) {
+            exitUnlocked = true;
+        }
+    }
+
+    public int getHarvestedCrops() {
+        return harvestedCrops;
+    }
+
+    public int getHarvestQuota() {
+        return harvestQuota;
+    }
+
+    public boolean isExitUnlocked() {
+        return exitUnlocked;
+    }
+
+    /* =========================
+     * Tools Handling
+     * ========================= */
+
+    public void collectShovel() { hasShovel = true; }
+    public boolean hasShovel() { return hasShovel; }
+
+    public void collectWateringCan() { hasWateringCan = true; }
+    public boolean hasWateringCan() { return hasWateringCan; }
+
+    public void collectFertilizer() { hasFertilizer = true; }
+    public boolean hasFertilizer() { return hasFertilizer; }
+
+    /**
+     * ✅ 中文：返回已收集工具数量，HUD 可用来显示图标
+     */
+    public int getCollectedToolsCount() {
+        int count = 0;
+        if (hasShovel) count++;
+        if (hasWateringCan) count++;
+        if (hasFertilizer) count++;
+        return count;
+    }
+
+    /**
+     * ✅ 中文：返回一个 boolean 数组，HUD 可显示每个工具的图标
+     * 顺序：[Shovel, WateringCan, Fertilizer]
+     */
+    public boolean[] getToolsStatus() {
+        return new boolean[]{hasShovel, hasWateringCan, hasFertilizer};
+    }
+
+    /* =========================
+     * Pause Handling
+     * ========================= */
+
+    public void setPaused(boolean paused) { this.paused = paused; }
+    public boolean isPaused() { return paused; }
+
+    /* =========================
+     * Game End Handling
+     * ========================= */
+
+    public void triggerVictory() {
+        if (!gameOver) victory = true;
+    }
+
+    public void triggerGameOver() {
+        if (!victory) gameOver = true;
+    }
+
+    public boolean isVictory() { return victory; }
+    public boolean isGameOver() { return gameOver; }
+}
