@@ -6,9 +6,11 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import de.tum.cit.aet.valleyday.audio.MusicTrack;
+import de.tum.cit.aet.valleyday.audio.SoundManager;
 import de.tum.cit.aet.valleyday.map.GameMap;
 import de.tum.cit.aet.valleyday.screen.GameScreen;
 import de.tum.cit.aet.valleyday.screen.MenuScreen;
+import de.tum.cit.aet.valleyday.state.GameState;
 import games.spooky.gdx.nativefilechooser.NativeFileChooser;
 
 import games.spooky.gdx.nativefilechooser.NativeFileChooserCallback;
@@ -22,6 +24,13 @@ import java.io.File;
  * It manages the screens and global resources like SpriteBatch and Skin.
  */
 public class ValleyDayGame extends Game {
+
+    // 基础图块大小 (16px)
+    public static final int TILE_SIZE = 16; 
+    // 缩放倍率 (4倍)
+    public static final float SCALE = 4.0f; 
+    // 最终屏幕上一个格子的像素大小 (64px)
+    public static final float PPM = TILE_SIZE * SCALE;
 
     /**
      * Sprite Batch for rendering game elements.
@@ -68,6 +77,8 @@ public class ValleyDayGame extends Game {
         this.map = new GameMap(this); // Create a new game map (you should change this to load the map from a file instead)
         MusicTrack.BACKGROUND.play(); // Play some background music
         goToMenu(); // Navigate to the menu screen
+        SoundManager.load();
+
     }
 
     public void selectMapFile() {
@@ -107,7 +118,7 @@ public class ValleyDayGame extends Game {
                         }
                         
                         // B. 让地图去读取这个文件
-                        //map.loadMap(file);
+                        map.loadMap(file);
                         
                         // C. 切换屏幕进入游戏
                         goToGame();
@@ -183,5 +194,7 @@ public class ValleyDayGame extends Game {
         getScreen().dispose(); // Dispose the current screen
         spriteBatch.dispose(); // Dispose the spriteBatch
         skin.dispose(); // Dispose the skin
+        SoundManager.dispose();
+
     }
 }
