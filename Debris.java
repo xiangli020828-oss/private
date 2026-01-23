@@ -11,43 +11,67 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 public class Debris extends GameObject {
 
     private final Body body;
-
-    /** Whether this debris has been removed. */
     private boolean removed = false;
+    private final DebrisType type;
+    private int health;
+    // 震动计时器，模拟清除过程
+    private float shakeTimer = 0f;
 
-    public Debris(World world, int x, int y) {
-        super(x, y); // ✅ 位置只在 GameObject 里存
+    public enum DebrisType {
+        STONE,  // 石头
+        WEED,   // 杂草
+        MOUND   // 土堆
+    }
 
-        // ================= Box2D body =================
+    public Debris(World world, float x, float y, DebrisType type) {
+        super(x, y); 
+        this.type = type;
+
+        // Debris耐久
+        switch (type) {
+            case STONE: this.health = 10; break; 
+            case MOUND: this.health = 8; break; 
+            case WEED:  
+            default:    this.health = 5; break; 
+        }
+        
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.StaticBody;
-
-        // ⚠️ Box2D 用“世界坐标”，tile 要 +0.5
+        // Box2D 中心点 = 格子坐标 + 0.5
         bodyDef.position.set(x + 0.5f, y + 0.5f);
 
-        body = world.createBody(bodyDef);
-
+        this.body = world.createBody(bodyDef);
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(0.5f, 0.5f);
 
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = shape;
-        fixtureDef.density = 0f;
-        fixtureDef.friction = 0.6f;
-
-        body.createFixture(fixtureDef);
-        shape.dispose();
-
-        // 【新增】把自己绑定到 body，方便碰撞回查
+        body.createFixture(shape, 0.0f);
         body.setUserData(this);
+        shape.dispose();
     }
 
-    /**
-     * Removes this debris.
-     */
+    // ✅ 修改开始：支持传入伤害数值
+    public boolean takeDamage(int amount) {
+        if (removed) return true;
+        this.health -= amount; 
+        this.shakeTimer = 0.1f;
+        return health <= 0;
+    }
+
+    // 保留无参方法作为默认行为
+    public boolean takeDamage() {
+        return takeDamage(1);
+    }
+    // ✅ 修改结束
+
+    // 在 tick 里更新震动时间
+    public void tick(float deltaTime) {
+        if (shakeTimer > 0) {
+            shakeTimer -= deltaTime;
+        }
+    }
+
     public void remove(World world) {
         if (removed) return;
-
         removed = true;
         world.destroyBody(body);
     }
@@ -60,11 +84,36 @@ public class Debris extends GameObject {
         return body;
     }
 
+    public DebrisType getType() { 
+        return type; 
+    }
+
     /* ================= Drawable ================= */
 
     @Override
     public TextureRegion getCurrentAppearance() {
-        // ⚠️ 这里换成你真实的 Debris 贴图
-        return Textures.DEBRIS;
+        switch (type) {
+            case STONE: return Textures.DEBRIS_STONE;
+            case WEED:  return Textures.DEBRIS_WEED;
+            default:    return Textures.DEBRIS_MOUND;
+        }
+    }
+
+    @Override
+    public float getX() {
+        float offset = 0;
+        if (shakeTimer > 0) {
+            offset = (float) (Math.random() * 0.1f - 0.05f);
+        }
+        return body.getPosition().x - 0.5f + offset;
+    }
+
+    @Override
+    public float getY() {
+        float offset = 0;
+        if (shakeTimer > 0) {
+            offset = (float) (Math.random() * 0.1f - 0.05f);
+        }
+        return body.getPosition().y - 0.5f + offset;
     }
 }
